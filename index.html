@@ -222,10 +222,6 @@
   </div>
 
   <!-- Floating set holdings -->
-  <button id="set-start" class="fixed bottom-6 right-5 bg-white shadow-xl border border-pink-100 text-pink-600 px-4 py-3 rounded-full text-sm font-semibold z-30">
-    Set starting checking
-  </button>
-
   <button id="enable-notifs" class="fixed bottom-6 left-5 bg-white shadow-xl border border-pink-100 text-pink-600 px-4 py-3 rounded-full text-sm font-semibold z-30 hidden">
     🔔 Enable Notifications
   </button>
@@ -925,19 +921,6 @@
     };
 
     // Set starting holdings
-    $('set-start').onclick = () => {
-      const current = holdings();
-      const input = prompt('What is your current checking amount?', current);
-      if (input === null) return;
-      const val = parseFloat(input);
-      if (isNaN(val)) return alert('Please enter a number');
-      const net = holdings() - (data.start || 0);
-      data.start = val - net;
-      save();
-      render();
-      showMotivational("Starting point set. Let's go! 🚀");
-    };
-
     $('month-filter').onchange = render;
 
     // Edit expected income
