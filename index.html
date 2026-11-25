@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Money Moves ✨</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 30%, #ede9fe 100%); }
+    .card { background: white; border-radius: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #f3e8ff; }
+    .btn { border-radius: 9999px; font-weight: 600; transition: all 0.15s; }
+    .btn:active { transform: scale(0.97); }
+    .nav-active { background: #ec4899; color: white; border-radius: 9999px; }
+    .over { color: #e11d48; font-weight: 700; }
+    .good { color: #059669; }
+    .warn { color: #d97706; }
+    input, select { border-radius: 1rem; }
+    .celebrate { animation: pop 0.4s ease; }
+    @keyframes pop { 0% { transform: scale(0.9); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen">
+  <div class="max-w-md mx-auto pb-28">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 pt-4 pb-2 px-5 text-center z-30 bg-gradient-to-b from-pink-50 via-pink-50 to-transparent">
+      <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">Money Moves ✨</h1>
+      <p class="text-pink-600/80 text-sm mt-1">Keepin’ it real money</p>
+    </header>
+
+    <!-- Nav -->
+    <nav class="fixed top-20 left-0 right-0 flex justify-center gap-2 px-4 py-2 z-20 bg-gradient-to-b from-pink-50 to-transparent">
+      <button class="nav-btn px-4 py-2 text-sm font-medium text-pink-700" data-view="home">Home</button>
+      <button class="nav-btn px-4 py-2 text-sm font-medium text-pink-700" data-view="add">Add</button>
+      <button class="nav-btn px-4 py-2 text-sm font-medium text-pink-700" data-view="goals">Goals</button>
+      <button class="nav-btn px-4 py-2 text-sm font-medium text-pink-700" data-view="reports">Reports</button>
+      <button class="nav-btn px-4 py-2 text-sm font-medium text-pink-700" data-view="reminders">Reminders</button>
+    </nav>
+
+    <main class="px-4 pt-36" id="main">
+      <!-- HOME -->
+      <section id="view-home" class="view space-y-5">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="card p-6 text-center celebrate cursor-pointer hover:shadow-md transition" id="checking-card">
+            <p class="text-sm font-medium text-pink-500 uppercase tracking-widest">Budgeted Checking</p>
+            <p id="holdings" class="text-4xl font-black text-violet-600 mt-1">$0</p>
+            <p id="holdings-vibe" class="text-sm text-gray-500 mt-2">Let's grow this 💸</p>
+          </div>
+          <div class="card p-6 text-center celebrate cursor-pointer hover:shadow-md transition" id="savings-card">
+            <p class="text-sm font-medium text-emerald-600 uppercase tracking-widest">Budgeted Savings</p>
+            <p id="savings-amount" class="text-4xl font-black text-emerald-600 mt-1">$0</p>
+            <p class="text-[10px] text-emerald-400 mt-2">Tap to add or take out</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="card p-4 text-center cursor-pointer hover:shadow-md transition" id="income-card">
+            <p class="text-xs text-gray-500">Income this month</p>
+            <p id="inc" class="text-2xl font-bold text-emerald-500">$0</p>
+            <p class="text-[10px] text-emerald-400 mt-1">Tap to review & confirm</p>
+          </div>
+          <div class="card p-4 text-center cursor-pointer hover:shadow-md transition" id="spent-card">
+            <p class="text-xs text-gray-500">Spent this month</p>
+            <p id="exp" class="text-2xl font-bold text-rose-500">$0</p>
+            <p class="text-[10px] text-pink-400 mt-1">Tap to review & confirm</p>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="font-bold text-lg mb-3">Planned vs Actual 📊</h3>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="text-center">
+              <p class="text-xs text-gray-500">Planned Expenses</p>
+              <p id="planned-total" class="text-2xl font-bold text-violet-500">$0</p>
+            </div>
+            <div class="text-center">
+              <p class="text-xs text-gray-500">Actual Expenses</p>
+              <p id="actual-total" class="text-2xl font-bold text-rose-500">$0</p>
+            </div>
+          </div>
+          <div class="relative h-3 bg-gray-100 rounded-full overflow-hidden mb-2">
+            <div id="planned-bar" class="absolute inset-y-0 left-0 bg-violet-300 rounded-full" style="width:100%"></div>
+            <div id="actual-bar" class="absolute inset-y-0 left-0 bg-rose-400 rounded-full opacity-80" style="width:0%"></div>
+          </div>
+          <p id="vs-message" class="text-center text-sm font-medium"></p>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg">Expense Check 👀</h3>
+            <button id="edit-budgets-btn" class="text-xs bg-pink-100 text-pink-700 px-3 py-1 rounded-full">Edit limits</button>
+          </div>
+          <div id="budgets" class="space-y-4"></div>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg">Income Check 💰</h3>
+            <button id="edit-income-btn" class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">Edit expected</button>
+          </div>
+          <div id="income-check" class="space-y-4"></div>
+        </div>
+
+        </div>
+      </section>
+
+      <!-- ADD -->
+      <section id="view-add" class="view hidden space-y-5">
+        <div class="card p-5">
+          <h2 class="text-xl font-bold mb-4 text-center">Add Money Move</h2>
+          <form id="add-form" class="space-y-4">
+            <div class="flex gap-2">
+              <button type="button" class="type-btn flex-1 py-3 rounded-2xl border-2 border-rose-200 text-rose-600 font-semibold" data-type="expense">💸 Expense</button>
+              <button type="button" class="type-btn flex-1 py-3 rounded-2xl border-2 border-emerald-200 text-emerald-600 font-semibold" data-type="income">💰 Income</button>
+            </div>
+            <div class="flex justify-center">
+              <button type="button" class="type-btn py-3 px-8 rounded-2xl border-2 border-violet-200 text-violet-600 font-semibold" data-type="savings">🏦 Move to Savings</button>
+            </div>
+            <input type="hidden" id="tx-type" value="expense">
+            <input type="number" id="tx-amount" step="0.01" placeholder="Amount" class="w-full p-4 border border-pink-100 text-lg" required>
+            <select id="tx-cat" class="w-full p-4 border border-pink-100"></select>
+            <input type="date" id="tx-date" class="w-full p-4 border border-pink-100">
+            <input type="text" id="tx-note" placeholder="Note (optional)" class="w-full p-4 border border-pink-100">
+            <button type="submit" class="btn w-full py-4 bg-gradient-to-r from-pink-500 to-violet-500 text-white text-lg">Add it ✨</button>
+          </form>
+        </div>
+
+        <div class="card p-5">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="font-bold">Recent Moves</h3>
+            <select id="month-filter" class="text-sm border rounded-full px-3 py-1"></select>
+          </div>
+          <div id="tx-list" class="space-y-2"></div>
+        </div>
+      </section>
+
+      <!-- GOALS -->
+      <section id="view-goals" class="view hidden space-y-5">
+        <div class="card p-5">
+          <h2 class="text-xl font-bold mb-4 text-center">New Milestone 🎯</h2>
+          <form id="goal-form" class="space-y-3">
+            <input type="text" id="goal-name" placeholder="What are you saving for?" class="w-full p-4 border border-violet-100" required>
+            <div class="grid grid-cols-2 gap-3">
+              <input type="number" id="goal-target" placeholder="Target $" class="p-4 border border-violet-100" required>
+              <input type="date" id="goal-date" class="p-4 border border-violet-100" required>
+            </div>
+            <button type="submit" class="btn w-full py-4 bg-violet-500 text-white">Create Goal</button>
+          </form>
+        </div>
+        <div id="goals-list" class="space-y-4"></div>
+      </section>
+
+      <!-- REMINDERS -->
+      <section id="view-reminders" class="view hidden space-y-5">
+        <div class="card p-5">
+          <h2 class="text-xl font-bold mb-4 text-center">Set a Reminder 🔔</h2>
+          <form id="rem-form" class="space-y-3">
+            <input type="text" id="rem-title" placeholder="What do you want to remember?" class="w-full p-4 border border-pink-100" required>
+            <input type="date" id="rem-date" class="w-full p-4 border border-pink-100" required>
+            <select id="rem-repeat" class="w-full p-4 border border-pink-100">
+              <option value="none">Just once</option>
+              <option value="weekly">Every week</option>
+              <option value="monthly">Every month</option>
+            </select>
+            <button type="submit" class="btn w-full py-4 bg-pink-500 text-white">Remind me</button>
+          </form>
+        </div>
+        <div class="card p-5">
+          <h3 class="font-bold mb-3">All Reminders</h3>
+          <div id="rem-list" class="space-y-2"></div>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="view-reports" class="view hidden space-y-5">
+        <div class="card p-5">
+          <h2 class="text-xl font-bold mb-4 text-center">Reports 📊</h2>
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div>
+              <label class="text-xs text-gray-500">From</label>
+              <input type="date" id="report-from" class="w-full p-3 border border-violet-100 rounded-xl">
+            </div>
+            <div>
+              <label class="text-xs text-gray-500">To</label>
+              <input type="date" id="report-to" class="w-full p-3 border border-violet-100 rounded-xl">
+            </div>
+          </div>
+          <button id="run-report" class="btn w-full py-3 bg-gradient-to-r from-pink-500 to-violet-500 text-white">Show Report</button>
+        </div>
+
+        <div id="report-summary" class="card p-5 hidden">
+          <div class="grid grid-cols-3 gap-2 text-center text-sm">
+            <div>
+              <p class="text-xs text-gray-500">Income</p>
+              <p id="rep-inc" class="font-bold text-emerald-500">$0</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Expenses</p>
+              <p id="rep-exp" class="font-bold text-rose-500">$0</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">Net</p>
+              <p id="rep-net" class="font-bold">$0</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="font-bold mb-3">Trends</h3>
+          <div class="relative h-64">
+            <canvas id="trend-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="font-bold mb-3">All Transactions</h3>
+          <div id="report-tx-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Floating set holdings -->
+  <button id="set-start" class="fixed bottom-6 right-5 bg-white shadow-xl border border-pink-100 text-pink-600 px-4 py-3 rounded-full text-sm font-semibold z-30">
+    Set starting checking
+  </button>
+
+  <button id="enable-notifs" class="fixed bottom-6 left-5 bg-white shadow-xl border border-pink-100 text-pink-600 px-4 py-3 rounded-full text-sm font-semibold z-30 hidden">
+    🔔 Enable Notifications
+  </button>
+
+  <script>
+    const KEY = 'moneyMoves_v2';
+    const DEFAULT_CATS = {
+      expense: ['Rent', 'Car Payment', 'Car Insurance', 'Cell Phone', 'Utilities', 'Subscriptions', 'Entertainment', 'Other'],
+      income: ['Paycheck', 'Side Hustle', 'Gift', 'Refund', 'Other']
+    };
+
+    let data = {
+      start: 0,
+      txs: [],
+      budgets: {},
+      goals: [],
+      reminders: [],
+      cats: null,
+      expectedIncome: {},
+      budgetDate: null,
+      incomeDate: null,
+      savings: 0,
+      budgetConfirmed: {},
+      expenseConfirmed: {}
+    };
+
+    const $ = id => document.getElementById(id);
+    const money = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
+    const today = () => new Date().toISOString().slice(0, 10);
+    const mk = d => (d || today()).slice(0, 7);
+
+    function getBudgetAmount(cat) {
+      const b = data.budgets[cat];
+      return (b && typeof b === 'object') ? (+b.amount || 0) : (+b || 0);
+    }
+    function getBudgetDate(cat) {
+      const b = data.budgets[cat];
+      return (b && typeof b === 'object' && b.date) ? b.date : (data.budgetDate || lastDayOfMonth());
+    }
+    function getExpectedAmount(cat) {
+      const e = data.expectedIncome?.[cat];
+      return (e && typeof e === 'object') ? (+e.amount || 0) : (+e || 0);
+    }
+    function getExpectedDate(cat) {
+      const e = data.expectedIncome?.[cat];
+      return (e && typeof e === 'object' && e.date) ? e.date : (data.incomeDate || lastDayOfMonth());
+    }
+
+    function lastDayOfMonth() {
+      const d = new Date();
+      return new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10);
+    }
+
+    function rolloverMonthIfNeeded() {
+      const currentMonth = mk();
+      if (data.lastRolloverMonth === currentMonth) return;
+
+      // Checking and Savings already carry forward automatically (continuous balances).
+      // Monthly income/spent/planned-vs-actual reset because they filter by current month.
+      // Budget limits carry over by default (single set of limits).
+
+      // Clear any old monthly confirmation flags that are no longer relevant (optional cleanup)
+      const keepMonths = [currentMonth];
+      Object.keys(data.budgetConfirmed || {}).forEach(m => {
+        if (!keepMonths.includes(m)) delete data.budgetConfirmed[m];
+      });
+      Object.keys(data.expenseConfirmed || {}).forEach(m => {
+        if (!keepMonths.includes(m)) delete data.expenseConfirmed[m];
+      });
+
+      data.lastRolloverMonth = currentMonth;
+      save();
+    }
+
+    function load() {
+      try {
+        const s = localStorage.getItem(KEY);
+        if (s) data = { ...data, ...JSON.parse(s) };
+      } catch(e) {}
+      if (!data.cats) data.cats = JSON.parse(JSON.stringify(DEFAULT_CATS));
+      if (!data.budgetDate) data.budgetDate = lastDayOfMonth();
+      if (!data.incomeDate) data.incomeDate = lastDayOfMonth();
+      if (typeof data.savings !== 'number') data.savings = 0;
+      if (!data.budgetConfirmed) data.budgetConfirmed = {};
+      if (!data.expenseConfirmed) data.expenseConfirmed = {};
+      if (!data.lastRolloverMonth) data.lastRolloverMonth = mk();
+      rolloverMonthIfNeeded();
+      $('tx-date').value = today();
+      $('goal-date').value = today();
+      $('rem-date').value = today();
+      updateCats();
+      updateMonthFilter();
+      render();
+      initReportDates();
+      checkNotifications();
+      scheduleReminders();
+      checkMonthlyReminders();
+    }
+
+    // ========== NOTIFICATIONS ==========
+    function checkNotifications() {
+      if (!('Notification' in window)) return;
+      const btn = $('enable-notifs');
+      if (Notification.permission === 'default') {
+        btn.classList.remove('hidden');
+      } else if (Notification.permission === 'granted') {
+        btn.classList.add('hidden');
+        notifyDueReminders();
+      }
+    }
+
+    $('enable-notifs').onclick = async () => {
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') {
+        $('enable-notifs').classList.add('hidden');
+        notifyDueReminders();
+        scheduleReminders();
+        new Notification('Money Moves', { body: 'Notifications are on! You’ll get reminder alerts. ✨', icon: 'https://em-content.zobj.net/source/apple/391/bell_1f514.png' });
+      }
+    };
+
+    function notifyDueReminders() {
+      if (Notification.permission !== 'granted') return;
+      const todayStr = today();
+      data.reminders.forEach(r => {
+        if (r.date <= todayStr && !r.notified) {
+          new Notification('Money Moves Reminder', {
+            body: r.title,
+            icon: 'https://em-content.zobj.net/source/apple/391/bell_1f514.png',
+            tag: 'reminder-' + (r.id || r.title)
+          });
+          r.notified = true;
+        }
+      });
+      save();
+    }
+
+    function scheduleReminders() {
+      if (Notification.permission !== 'granted') return;
+      // Clear old timeouts (simple approach)
+      if (window.reminderTimeouts) window.reminderTimeouts.forEach(clearTimeout);
+      window.reminderTimeouts = [];
+
+      const now = new Date();
+      data.reminders.forEach(r => {
+        if (r.date > today() && !r.notified) {
+          const when = new Date(r.date + 'T09:00:00'); // 9 AM on the day
+          const delay = when - now;
+          if (delay > 0 && delay < 1000 * 60 * 60 * 24 * 7) { // only schedule within a week
+            const t = setTimeout(() => {
+              if (Notification.permission === 'granted') {
+                new Notification('Money Moves Reminder', {
+                  body: r.title,
+                  icon: 'https://em-content.zobj.net/source/apple/391/bell_1f514.png',
+                  tag: 'reminder-' + (r.id || r.title)
+                });
+                r.notified = true;
+                save();
+              }
+            }, delay);
+            window.reminderTimeouts.push(t);
+          }
+        }
+      });
+    }
+
+    function checkMonthlyReminders() {
+      if (Notification.permission !== 'granted') return;
+      const now = new Date();
+      const day = now.getDate();
+      const monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+
+      // 1st–15th: Validate budget planning
+      if (day >= 1 && day <= 15 && !data.budgetConfirmed?.[monthKey]) {
+        new Notification('Money Moves', {
+          body: 'Time to validate your budget planning for this month 👀',
+          icon: 'https://em-content.zobj.net/source/apple/391/bell_1f514.png',
+          tag: 'budget-validate-' + monthKey
+        });
+      }
+
+      // 20th–30th: Confirm final planned expenses
+      if (day >= 20 && day <= 30 && !data.expenseConfirmed?.[monthKey]) {
+        new Notification('Money Moves', {
+          body: 'Confirm your final planned expenses for this month ✨',
+          icon: 'https://em-content.zobj.net/source/apple/391/bell_1f514.png',
+          tag: 'expense-confirm-' + monthKey
+        });
+      }
+    }
+
+    function markBudgetConfirmed() {
+      const now = new Date();
+      const monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+      if (!data.budgetConfirmed) data.budgetConfirmed = {};
+      data.budgetConfirmed[monthKey] = true;
+      save();
+    }
+
+    function markExpenseConfirmed() {
+      const now = new Date();
+      const monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+      if (!data.expenseConfirmed) data.expenseConfirmed = {};
+      data.expenseConfirmed[monthKey] = true;
+      save();
+    }
+
+    function save() {
+      localStorage.setItem(KEY, JSON.stringify(data));
+    }
+
+    function holdings() {
+      const net = data.txs.reduce((s, t) => s + (t.type === 'income' ? +t.amount : -t.amount), 0);
+      let balance = (data.start || 0) + net;
+
+      const todayStr = today();
+      const currentMonth = mk();
+
+      // Track actual spend and income this month
+      const spend = {};
+      const income = {};
+      data.txs.filter(t => mk(t.date) === currentMonth).forEach(t => {
+        if (t.type === 'expense') spend[t.cat] = (spend[t.cat] || 0) + +t.amount;
+        if (t.type === 'income') income[t.cat] = (income[t.cat] || 0) + +t.amount;
+      });
+
+      // Deduct remaining planned expenses whose date has arrived
+      Object.keys(data.budgets || {}).forEach(cat => {
+        const planned = getBudgetAmount(cat);
+        const plannedDate = getBudgetDate(cat);
+        if (planned > 0 && plannedDate && plannedDate <= todayStr) {
+          const spent = spend[cat] || 0;
+          const remaining = Math.max(0, planned - spent);
+          balance -= remaining;
+        }
+      });
+
+      // Add remaining expected income whose date has arrived
+      Object.keys(data.expectedIncome || {}).forEach(cat => {
+        const expected = getExpectedAmount(cat);
+        const expectedDate = getExpectedDate(cat);
+        if (expected > 0 && expectedDate && expectedDate <= todayStr) {
+          const received = income[cat] || 0;
+          const remaining = Math.max(0, expected - received);
+          balance += remaining;
+        }
+      });
+
+      return balance;
+    }
+
+    function transferToSavings(amount) {
+      if (amount <= 0) return;
+      data.savings = (data.savings || 0) + amount;
+      data.start = (data.start || 0) - amount;
+      save();
+      render();
+      showMotivational("Moved to savings! Building that stack 💰");
+    }
+
+    function transferFromSavings(amount) {
+      if (amount <= 0) return;
+      const available = data.savings || 0;
+      if (amount > available) amount = available;
+      data.savings = available - amount;
+      data.start = (data.start || 0) + amount;
+      save();
+      render();
+      showMotivational("Pulled from savings. Use it wisely ✨");
+    }
+
+    function monthStats(month = mk()) {
+      const list = data.txs.filter(t => mk(t.date) === month);
+      const income = list.filter(t => t.type === 'income').reduce((s, t) => s + +t.amount, 0);
+      const exp = list.filter(t => t.type === 'expense').reduce((s, t) => s + +t.amount, 0);
+      return { income, exp, net: income - exp, list };
+    }
+
+    function avgSurplus() {
+      const months = {};
+      data.txs.forEach(t => {
+        const m = mk(t.date);
+        months[m] = (months[m] || 0) + (t.type === 'income' ? +t.amount : -t.amount);
+      });
+      const vals = Object.values(months);
+      return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+    }
+
+    function project(goal, extra = 0) {
+      const have = holdings();
+      const need = Math.max(0, goal.target - have);
+      if (need <= 0) return { date: 'Done! 🎉', onTrack: true, months: 0 };
+      const rate = Math.max(0, avgSurplus()) + extra;
+      if (rate <= 0) return { date: 'Need more surplus', onTrack: false, months: Infinity };
+      const months = Math.ceil(need / rate);
+      const d = new Date();
+      d.setMonth(d.getMonth() + months);
+      const target = new Date(goal.date);
+      return {
+        date: d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        onTrack: d <= target,
+        months
+      };
+    }
+
+    function updateCats() {
+      const type = $('tx-type').value;
+      const sel = $('tx-cat');
+      const list = (data.cats && data.cats[type]) || DEFAULT_CATS[type];
+      sel.innerHTML = list.map(c => `<option>${c}</option>`).join('');
+    }
+
+    function updateMonthFilter() {
+      const sel = $('month-filter');
+      const months = new Set(data.txs.map(t => mk(t.date)));
+      months.add(mk());
+      sel.innerHTML = [...months].sort().reverse().map(m => `<option value="${m}">${m}</option>`).join('');
+    }
+
+    function vibe(h) {
+      if (h >= 5000) return "You're stacking it 🔥";
+      if (h >= 1000) return "Looking solid 💪";
+      if (h >= 0) return "Building your checking ✨";
+      return "Let's start growing this 🌱";
+    }
+
+    function render() {
+      const h = holdings();
+      $('holdings').textContent = money(h);
+      $('holdings-vibe').textContent = vibe(h);
+      if ($('savings-amount')) $('savings-amount').textContent = money(data.savings || 0);
+
+      const st = monthStats();
+      $('inc').textContent = money(st.income);
+      $('exp').textContent = money(st.exp);
+
+      // Planned vs Actual
+      const plannedTotal = Object.keys(data.budgets).reduce((s, cat) => s + getBudgetAmount(cat), 0);
+      const actualTotal = st.exp;
+      $('planned-total').textContent = money(plannedTotal);
+      $('actual-total').textContent = money(actualTotal);
+
+      const maxVal = Math.max(plannedTotal, actualTotal, 1);
+      const plannedPct = plannedTotal > 0 ? 100 : 0;
+      const actualPct = (actualTotal / maxVal) * 100;
+      $('planned-bar').style.width = plannedPct + '%';
+      $('actual-bar').style.width = Math.min(100, actualPct) + '%';
+
+      const diff = plannedTotal - actualTotal;
+      const msgEl = $('vs-message');
+      if (plannedTotal === 0) {
+        msgEl.textContent = 'Set monthly limits to see planned vs actual';
+        msgEl.className = 'text-center text-sm font-medium text-gray-400';
+      } else if (diff >= 0) {
+        msgEl.textContent = `Under budget by ${money(diff)} ✨`;
+        msgEl.className = 'text-center text-sm font-medium text-emerald-500';
+      } else {
+        msgEl.textContent = `Over budget by ${money(Math.abs(diff))} 👀`;
+        msgEl.className = 'text-center text-sm font-medium text-rose-500';
+      }
+
+      // Income Check
+      const incomeDiv = $('income-check');
+      const incomeCats = data.cats?.income || DEFAULT_CATS.income;
+      const received = {};
+      st.list.filter(t => t.type === 'income').forEach(t => {
+        received[t.cat] = (received[t.cat] || 0) + +t.amount;
+      });
+
+      incomeDiv.innerHTML = incomeCats.map(cat => {
+        const got = received[cat] || 0;
+        const expected = getExpectedAmount(cat);
+        const pct = expected > 0 ? Math.min(120, (got / expected) * 100) : (got > 0 ? 100 : 0);
+        const bar = got >= expected && expected > 0 ? 'bg-emerald-500' : 'bg-emerald-300';
+        const msg = expected > 0 ? `${money(got)} / ${money(expected)}` : (got > 0 ? money(got) : '');
+        return `
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium">${cat}</span>
+              <span class="text-emerald-600">${msg}</span>
+            </div>
+            <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+              <div class="${bar} h-full transition-all" style="width:${Math.min(100, pct)}%"></div>
+            </div>
+          </div>`;
+      }).join('') || '<p class="text-sm text-gray-400 text-center">No income categories yet</p>';
+
+      // Budgets
+      const spend = {};
+      st.list.filter(t => t.type === 'expense').forEach(t => {
+        spend[t.cat] = (spend[t.cat] || 0) + +t.amount;
+      });
+      const bDiv = $('budgets');
+      const cats = Object.keys(data.budgets).length ? Object.keys(data.budgets) : (data.cats?.expense || DEFAULT_CATS.expense).slice(0, 6);
+      bDiv.innerHTML = cats.map(cat => {
+        const spent = spend[cat] || 0;
+        const lim = getBudgetAmount(cat);
+        const pct = lim ? Math.min(120, (spent / lim) * 100) : 0;
+        const over = lim && spent > lim;
+        const bar = over ? 'bg-rose-500' : pct > 85 ? 'bg-amber-400' : 'bg-emerald-400';
+        const msg = lim ? (over ? `Over by ${money(spent - lim)}` : `${money(spent)} / ${money(lim)}`) : (spent > 0 ? money(spent) : '');
+        return `
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium">${cat}</span>
+              <span class="${over ? 'over' : ''}">${msg}</span>
+            </div>
+            <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+              <div class="${bar} h-full transition-all" style="width:${Math.min(100, pct)}%"></div>
+            </div>
+          </div>`;
+      }).join('') || '<p class="text-sm text-gray-400 text-center">Set some limits to stay accountable ✨</p>';
+
+      // Transactions list
+      const m = $('month-filter').value || mk();
+      const list = monthStats(m).list.sort((a,b) => b.date.localeCompare(a.date));
+      $('tx-list').innerHTML = list.map(t => `
+        <div class="flex justify-between items-center py-2 text-sm border-b border-gray-50">
+          <div>
+            <span class="font-medium">${t.note || t.cat}</span>
+            <span class="text-xs text-gray-400 ml-1">${t.date.slice(5)}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="${t.type === 'income' ? 'text-emerald-500' : 'text-rose-500'} font-semibold">
+              ${t.type === 'income' ? '+' : '−'}${money(t.amount)}
+            </span>
+            <button class="del-tx text-gray-300 text-xs" data-id="${t.id}">✕</button>
+          </div>
+        </div>`).join('') || '<p class="text-center text-sm text-gray-400 py-4">No moves this month yet</p>';
+
+      // Goals list with what-if
+      $('goals-list').innerHTML = data.goals.map((g, i) => {
+        const p = project(g);
+        const prog = Math.min(100, ((data.savings || 0) / g.target) * 100);
+        return `
+          <div class="card p-5">
+            <div class="flex justify-between">
+              <div>
+                <h3 class="font-bold">${g.name}</h3>
+                <p class="text-sm text-gray-500">${money(g.target)} by ${new Date(g.date).toLocaleDateString()}</p>
+              </div>
+              <button class="del-goal text-rose-400 text-sm" data-i="${i}">Delete</button>
+            </div>
+            <div class="mt-3">
+              <div class="h-2 bg-gray-100 rounded-full">
+                <div class="h-full bg-violet-400" style="width:${prog}%"></div>
+              </div>
+              <p class="text-xs text-gray-400 mt-1">${Math.round(prog)}% there</p>
+            </div>
+          </div>`;
+      }).join('') || '<div class="card p-8 text-center text-gray-400">No goals yet — dream big ✨</div>';
+
+      // Reminders list
+      const sortedR = [...data.reminders].sort((a,b) => a.date.localeCompare(b.date));
+      $('rem-list').innerHTML = sortedR.map((r, i) => `
+        <div class="flex justify-between items-center py-2 border-b border-pink-50">
+          <div>
+            <span class="font-medium">${r.title}</span>
+            <span class="text-xs text-gray-400 ml-2">${r.date} ${r.repeat !== 'none' ? '• ' + r.repeat : ''}</span>
+          </div>
+          <button class="del-rem text-rose-400 text-xs" data-i="${i}">✕</button>
+        </div>`).join('') || '<p class="text-center text-sm text-gray-400 py-4">No reminders yet</p>';
+
+      // Bind deletes
+      document.querySelectorAll('.del-tx').forEach(b => b.onclick = () => {
+        data.txs = data.txs.filter(t => t.id != b.dataset.id);
+        save(); render();
+      });
+      document.querySelectorAll('.del-goal').forEach(b => b.onclick = () => {
+        data.goals.splice(+b.dataset.i, 1);
+        save(); render();
+      });
+      document.querySelectorAll('.del-rem').forEach(b => b.onclick = () => {
+        data.reminders.splice(+b.dataset.i, 1);
+        save(); render();
+      });
+    }
+
+    // Nav
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
+        btn.classList.add('nav-active');
+        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+        $('view-' + btn.dataset.view).classList.remove('hidden');
+        window.scrollTo(0, 0);
+      };
+    });
+    document.querySelector('.nav-btn').classList.add('nav-active');
+
+    // Type buttons
+    document.querySelectorAll('.type-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('bg-rose-500', 'bg-emerald-500', 'bg-violet-500', 'text-white'));
+        const type = btn.dataset.type;
+        if (type === 'expense') btn.classList.add('bg-rose-500', 'text-white');
+        else if (type === 'income') btn.classList.add('bg-emerald-500', 'text-white');
+        else btn.classList.add('bg-violet-500', 'text-white');
+        $('tx-type').value = type;
+        // Hide category for savings transfer
+        $('tx-cat').classList.toggle('hidden', type === 'savings');
+        if (type !== 'savings') updateCats();
+      };
+    });
+    document.querySelector('.type-btn').classList.add('bg-rose-500', 'text-white');
+
+    function showMotivational(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed inset-0 flex items-center justify-center z-50 pointer-events-none';
+      toast.innerHTML = `
+        <div class="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-10 py-16 rounded-3xl text-3xl font-bold text-center shadow-2xl max-w-[80%] animate-pulse">
+          ${msg}
+        </div>`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2500);
+    }
+
+    // Move to Savings is now a type button; handled in the form submit
+
+    // Forms
+    $('add-form').onsubmit = e => {
+      e.preventDefault();
+      const amount = +$('tx-amount').value;
+      if (!amount || amount <= 0) return alert('Enter a positive amount');
+      const type = $('tx-type').value;
+
+      if (type === 'savings') {
+        // Move from budgeted checking into savings
+        data.savings = (data.savings || 0) + amount;
+        // Reduce checking by the same amount
+        data.start = (data.start || 0) - amount;
+        save();
+        $('add-form').reset();
+        $('tx-date').value = today();
+        $('tx-type').value = 'expense';
+        $('tx-cat').classList.remove('hidden');
+        updateCats();
+        render();
+        showMotivational("Moved to savings! Building that stack 💰");
+        document.querySelector('[data-view="home"]').click();
+        return;
+      }
+
+      data.txs.push({
+        id: Date.now(),
+        type,
+        amount,
+        cat: $('tx-cat').value,
+        date: $('tx-date').value,
+        note: $('tx-note').value.trim()
+      });
+      save();
+      $('add-form').reset();
+      $('tx-date').value = today();
+      updateMonthFilter();
+      render();
+      const isIncome = type === 'income';
+      showMotivational(isIncome ? "Nice! Money in the door 💰" : "Got it! Tracking that expense ✨");
+      document.querySelector('[data-view="home"]').click();
+    };
+
+    $('goal-form').onsubmit = e => {
+      e.preventDefault();
+      data.goals.push({
+        name: $('goal-name').value.trim(),
+        target: +$('goal-target').value,
+        date: $('goal-date').value
+      });
+      save();
+      $('goal-form').reset();
+      $('goal-date').value = today();
+      render();
+      showMotivational("Goal locked in! You got this 🎯");
+    };
+
+    $('rem-form').onsubmit = e => {
+      e.preventDefault();
+      data.reminders.push({
+        id: Date.now(),
+        title: $('rem-title').value.trim(),
+        date: $('rem-date').value,
+        repeat: $('rem-repeat').value,
+        notified: false
+      });
+      save();
+      $('rem-form').reset();
+      $('rem-date').value = today();
+      render();
+      scheduleReminders();
+      showMotivational("Reminder set! Future you says thanks 📅");
+    };
+
+    // Edit budgets + manage categories
+    $('edit-budgets-btn').onclick = () => {
+      const expenseCats = [...(data.cats?.expense || DEFAULT_CATS.expense)];
+      const renderModalContent = () => {
+        let html = expenseCats.map((c, i) => `
+          <div class="flex items-center gap-2 text-sm mb-2">
+            <input type="text" data-idx="${i}" value="${c}" class="cat-name flex-1 p-2 border rounded-xl" placeholder="Category name">
+            <input type="number" data-cat="${c}" value="${getBudgetAmount(c) || ''}" placeholder="Limit $" class="w-20 p-2 border rounded-xl">
+            <label class="relative inline-flex items-center justify-center w-8 h-8 cursor-pointer text-lg">
+              📅
+              <input type="date" data-cat="${c}" value="${getBudgetDate(c)}" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer date-input">
+            </label>
+            <button type="button" class="confirm-cat px-2 text-lg ${getBudgetDate(c) <= today() ? 'text-emerald-500' : 'text-rose-400'}" data-idx="${i}" title="Toggle date">
+              ${getBudgetDate(c) <= today() ? '✓' : '✕'}
+            </button>
+            <button type="button" class="remove-cat text-rose-400 px-2" data-idx="${i}">✕</button>
+          </div>`).join('');
+        html += `<div class="mt-3 flex gap-2">
+          <input type="text" id="new-cat" placeholder="New category" class="flex-1 p-2 border rounded-xl">
+          <button type="button" id="add-cat" class="px-3 py-2 bg-pink-100 text-pink-700 rounded-xl text-sm">Add</button>
+        </div>`;
+        return html;
+      };
+
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-4';
+      overlay.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[85vh] overflow-auto">
+          <h3 class="font-bold text-lg mb-1 text-center">Monthly Limits</h3>
+          <p class="text-xs text-gray-400 text-center mb-4">Edit names, limits, or add/remove categories</p>
+          <div id="cat-list">${renderModalContent()}</div>
+          <button id="save-b" class="btn w-full py-3 bg-pink-500 text-white mt-4">Save</button>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      const refresh = () => {
+        overlay.querySelector('#cat-list').innerHTML = renderModalContent();
+        bindModalEvents();
+      };
+
+      const bindModalEvents = () => {
+        overlay.querySelector('#add-cat')?.addEventListener('click', () => {
+          const name = overlay.querySelector('#new-cat').value.trim();
+          if (name && !expenseCats.includes(name)) {
+            expenseCats.push(name);
+            refresh();
+          }
+        });
+        overlay.querySelectorAll('.remove-cat').forEach(btn => {
+          btn.onclick = () => {
+            const idx = +btn.dataset.idx;
+            const removed = expenseCats.splice(idx, 1)[0];
+            delete data.budgets[removed];
+            refresh();
+          };
+        });
+        overlay.querySelectorAll('.confirm-cat').forEach(btn => {
+          btn.onclick = () => {
+            const row = btn.closest('div.flex');
+            const dateInp = row.querySelector('.date-input');
+            // Open the native date picker
+            dateInp.showPicker?.() || dateInp.click();
+          };
+          // Also update icon when the date input changes
+          const row = btn.closest('div.flex');
+          const dateInp = row.querySelector('.date-input');
+          dateInp.onchange = () => {
+            const newDate = dateInp.value;
+            const isUpToToday = newDate && newDate <= today();
+            btn.textContent = isUpToToday ? '✓' : '✕';
+            btn.className = `confirm-cat px-2 text-lg ${isUpToToday ? 'text-emerald-500' : 'text-rose-400'}`;
+            // Do not save yet — wait for the Save button
+          };
+        });
+      };
+
+      bindModalEvents();
+
+      overlay.querySelector('#save-b').onclick = () => {
+        const rows = overlay.querySelectorAll('#cat-list > div.flex');
+        const newCats = [];
+        const newBudgets = {};
+        rows.forEach(row => {
+          const nameInp = row.querySelector('.cat-name');
+          const limitInp = row.querySelector('input[type="number"]');
+          const dateInp = row.querySelector('input[type="date"]');
+          if (!nameInp) return;
+          const name = nameInp.value.trim();
+          if (!name) return;
+          newCats.push(name);
+          const amt = +limitInp.value;
+          const dt = dateInp?.value || lastDayOfMonth();
+          if (amt > 0) newBudgets[name] = { amount: amt, date: dt };
+        });
+        data.cats.expense = newCats.length ? newCats : DEFAULT_CATS.expense;
+        data.budgets = newBudgets;
+        markBudgetConfirmed();
+        save();
+        overlay.remove();
+        updateCats();
+        render();
+        showMotivational("Budget limits saved! Stay on track 👀");
+      };
+      overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+    };
+
+    // Set starting holdings
+    $('set-start').onclick = () => {
+      const current = holdings();
+      const input = prompt('What is your current checking amount?', current);
+      if (input === null) return;
+      const val = parseFloat(input);
+      if (isNaN(val)) return alert('Please enter a number');
+      const net = holdings() - (data.start || 0);
+      data.start = val - net;
+      save();
+      render();
+      showMotivational("Starting point set. Let's go! 🚀");
+    };
+
+    $('month-filter').onchange = render;
+
+    // Edit expected income
+    $('edit-income-btn').onclick = () => {
+      const incomeCats = [...(data.cats?.income || DEFAULT_CATS.income)];
+      const renderModal = () => {
+        let html = incomeCats.map((c, i) => `
+          <div class="flex items-center gap-2 text-sm mb-2">
+            <input type="text" data-idx="${i}" value="${c}" class="inc-name flex-1 p-2 border rounded-xl" placeholder="Category">
+            <input type="number" data-cat="${c}" value="${getExpectedAmount(c) || ''}" placeholder="Expected $" class="w-20 p-2 border rounded-xl">
+            <label class="relative inline-flex items-center justify-center w-8 h-8 cursor-pointer text-lg">
+              📅
+              <input type="date" data-cat="${c}" value="${getExpectedDate(c)}" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer">
+            </label>
+            <button type="button" class="remove-inc text-rose-400 px-2" data-idx="${i}">✕</button>
+          </div>`).join('');
+        html += `<div class="mt-3 flex gap-2">
+          <input type="text" id="new-inc" placeholder="New category" class="flex-1 p-2 border rounded-xl">
+          <button type="button" id="add-inc" class="px-3 py-2 bg-emerald-100 text-emerald-700 rounded-xl text-sm">Add</button>
+        </div>`;
+        return html;
+      };
+
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-4';
+      overlay.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[85vh] overflow-auto">
+          <h3 class="font-bold text-lg mb-1 text-center">Expected Monthly Income</h3>
+          <p class="text-xs text-gray-400 text-center mb-4">Set what you expect to receive in each category</p>
+          <div id="inc-list">${renderModal()}</div>
+          <button id="save-inc" class="btn w-full py-3 bg-emerald-500 text-white mt-4">Save</button>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      const refresh = () => {
+        overlay.querySelector('#inc-list').innerHTML = renderModal();
+        bindInc();
+      };
+      const bindInc = () => {
+        overlay.querySelector('#add-inc')?.addEventListener('click', () => {
+          const name = overlay.querySelector('#new-inc').value.trim();
+          if (name && !incomeCats.includes(name)) {
+            incomeCats.push(name);
+            refresh();
+          }
+        });
+        overlay.querySelectorAll('.remove-inc').forEach(btn => {
+          btn.onclick = () => {
+            incomeCats.splice(+btn.dataset.idx, 1);
+            refresh();
+          };
+        });
+      };
+      bindInc();
+
+      overlay.querySelector('#reset-inc').onclick = () => {
+        overlay.querySelectorAll('#inc-list input[type="number"]').forEach(inp => {
+          inp.value = '';
+        });
+      };
+
+      overlay.querySelector('#save-inc').onclick = () => {
+        const rows = overlay.querySelectorAll('#inc-list > div.flex');
+        const newCats = [];
+        const newExpected = {};
+        rows.forEach(row => {
+          const nameInp = row.querySelector('.inc-name');
+          const valInp = row.querySelector('input[type="number"]');
+          const dateInp = row.querySelector('input[type="date"]');
+          if (!nameInp) return;
+          const name = nameInp.value.trim();
+          if (!name) return;
+          newCats.push(name);
+          const amt = +valInp.value;
+          const dt = dateInp?.value || lastDayOfMonth();
+          if (amt > 0) newExpected[name] = { amount: amt, date: dt };
+        });
+        data.cats.income = newCats.length ? newCats : DEFAULT_CATS.income;
+        data.expectedIncome = newExpected;
+        save();
+        overlay.remove();
+        updateCats();
+        render();
+        showMotivational("Expected income updated! 💰");
+      };
+      overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+    };
+
+    // Budgeted Checking -> set balance modal
+    $('checking-card').onclick = () => {
+      const current = holdings();
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-4';
+      overlay.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm">
+          <h3 class="font-bold text-lg mb-1 text-center">Set Budgeted Checking</h3>
+          <p class="text-xs text-gray-400 text-center mb-4">Enter a new amount or reset to zero</p>
+          <input type="number" step="0.01" id="set-checking-amt" value="${current || ''}" placeholder="Amount" class="w-full p-4 border rounded-2xl text-2xl text-center font-bold mb-4">
+          <button id="reset-checking" class="btn w-full py-2 bg-gray-100 text-gray-600 mb-2">Reset to Zero</button>
+          <button id="save-checking" class="btn w-full py-3 bg-pink-500 text-white">Save</button>
+          <button id="cancel-checking" class="btn w-full py-2 mt-2 bg-gray-50 text-gray-500">Cancel</button>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      overlay.querySelector('#reset-checking').onclick = () => {
+        overlay.querySelector('#set-checking-amt').value = '0';
+      };
+
+      overlay.querySelector('#save-checking').onclick = () => {
+        const val = parseFloat(overlay.querySelector('#set-checking-amt').value);
+        if (isNaN(val)) return alert('Please enter a number');
+        const net = holdings() - (data.start || 0);
+        data.start = val - net;
+        save();
+        render();
+        overlay.remove();
+        showMotivational("Budgeted Checking updated! ✨");
+      };
+
+      overlay.querySelector('#cancel-checking').onclick = () => overlay.remove();
+      overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+    };
+
+    // Budgeted Savings -> set balance modal
+    $('savings-card').onclick = () => {
+      const current = data.savings || 0;
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-4';
+      overlay.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm">
+          <h3 class="font-bold text-lg mb-1 text-center">Set Budgeted Savings</h3>
+          <p class="text-xs text-gray-400 text-center mb-4">Enter a new amount or reset to zero</p>
+          <input type="number" step="0.01" id="set-savings-amt" value="${current || ''}" placeholder="Amount" class="w-full p-4 border rounded-2xl text-2xl text-center font-bold mb-4">
+          <button id="reset-savings" class="btn w-full py-2 bg-gray-100 text-gray-600 mb-2">Reset to Zero</button>
+          <button id="save-savings" class="btn w-full py-3 bg-emerald-500 text-white">Save</button>
+          <button id="cancel-savings" class="btn w-full py-2 mt-2 bg-gray-50 text-gray-500">Cancel</button>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      overlay.querySelector('#reset-savings').onclick = () => {
+        overlay.querySelector('#set-savings-amt').value = '0';
+      };
+
+      overlay.querySelector('#save-savings').onclick = () => {
+        const val = parseFloat(overlay.querySelector('#set-savings-amt').value);
+        if (isNaN(val) || val < 0) return alert('Please enter a valid amount');
+        data.savings = val;
+        save();
+        render();
+        overlay.remove();
+        showMotivational("Budgeted Savings updated! 💰");
+      };
+
+      overlay.querySelector('#cancel-savings').onclick = () => overlay.remove();
+      overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+    };
+
+    // Spent this month review popup
+    $('spent-card').onclick = () => {
+      const st = monthStats();
+      const spend = {};
+      st.list.filter(t => t.type === 'expense').forEach(t => {
+        spend[t.cat] = (spend[t.cat] || 0) + +t.amount;
+      });
+
+      const cats = Object.keys(data.budgets).length
+        ? Object.keys(data.budgets)
+        : (data.cats?.expense || DEFAULT_CATS.expense);
+
+      let html = cats.map(cat => {
+        const planned = getBudgetAmount(cat);
+        const actual = spend[cat] || 0;
+        return `
+          <div class="flex items-center gap-2 py-2 border-b border-pink-50 text-sm">
+            <div class="flex-1">
+              <div class="font-medium">${cat}</div>
+              <div class="text-xs text-gray-400">Planned: ${planned > 0 ? money(planned) : '—'}</div>
+            </div>
+            <div class="text-right">
+              <input type="number" step="0.01" value="${planned || ''}" data-cat="${cat}" data-original="${actual}"
+                class="confirm-amt w-24 p-2 border rounded-xl text-right" placeholder="Amount">
+              <div class="text-[10px] text-gray-400">confirm</div>
+            </div>
+          </div>`;
+      }).join('');
+
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-4';
+      overlay.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[85vh] overflow-auto">
+          <h3 class="font-bold text-lg mb-1 text-center">Confirm This Month's Spending</h3>
+          <p class="text-xs text-gray-400 text-center mb-4">Amounts default to your planned limits. Adjust if you spent more or less, then confirm.</p>
+          <div class="space-y-1 mb-4">${html || '<p class="text-sm text-gray-400 text-center py-4">No budget categories yet. Set some limits first.</p>'}</div>
+          <button id="confirm-spent" class="btn w-full py-3 bg-rose-500 text-white">Confirm Spending</button>
+          <button id="cancel-spent" class="btn w-full py-2 mt-2 bg-gray-100 text-gray-600">Cancel</button>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      overlay.querySelector('#cancel-spent').onclick = () => overlay.remove();
+      overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+      overlay.querySelector('#confirm-spent').onclick = () => {
+        const inputs = overlay.querySelectorAll('.confirm-amt');
+        const todayStr = today();
+        const currentMonth = mk(todayStr);
+
+        // Remove any previous confirmation adjustments for this month
+        data.txs = data.txs.filter(t => !(t.note && t.note.startsWith('Confirmed') && mk(t.date) === currentMonth));
+
+        inputs.forEach(inp => {
+          const cat = inp.dataset.cat;
+          const confirmed = +inp.value || 0;
+
+          // Current non-adjustment spend for this category this month
+          const current = data.txs
+            .filter(t => t.type === 'expense' && t.cat === cat && mk(t.date) === currentMonth && !(t.note && t.note.startsWith('Confirmed')))
+            .reduce((s, t) => s + +t.amount, 0);
+
+          const diff = confirmed - current;
+          if (diff > 0.01) {
+            data.txs.push({
+              id: Date.now() + Math.floor(Math.random() * 1000),
+              type: 'expense',
+              amount: diff,
+              cat: cat,
+              date: todayStr,
+              note: 'Confirmed spending'
+            });
+          }
+          // Note: if confirmed is lower, we leave existing transactions as-is
+          // (user can delete individual ones from the Add tab if needed)
+        });
+
+        save();
+        updateMonthFilter();
+        render();
+        markExpenseConfirmed();
+        overlay.remove();
+        showMotivational("Spending confirmed! You're on top of it 🔥");
+      };
+    };
+
+    // Income this month review popup
+    $('income-card').onclick = () => {
+      const st = monthStats();
+      const received = {};
+      st.list.filter(t => t.type === 'income').forEach(t => {
+        received[t.cat] = (received[t.cat] || 0) + +t.amount;
+      });
+
+      const cats = data.cats?.income || DEFAULT_CATS.income;
+
+      let html = cats.map(cat => {
+        const actual = received[cat] || 0;
+        return `
+          <div class="flex items-center gap-2 py-2 border-b border-emerald-50 text-sm">
+            <div class="flex-1">
+              <div class="font-medium">${cat}</div>
+              <div class="text-xs text-gray-400">Received so far: ${actual > 0 ? money(actual) : '—'}</div>
+            </div>
+            <div class="text-right">
+              <input type="number" step="0.01" value="${actual || ''}" data-cat="${cat}" data-original="${actual}"
+                class="confirm-amt w-24 p-2 border rounded-xl text-right" placeholder="Amount">
+              <div class="text-[10px] text-gray-400">confirm</div>
+            </div>
+          </div>`;
+      }).join('');
+
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 p-4';
+      overlay.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[85vh] overflow-auto">
+          <h3 class="font-bold text-lg mb-1 text-center">Confirm This Month's Income</h3>
+          <p class="text-xs text-gray-400 text-center mb-4">Amounts are pre-filled from your transactions. Adjust if needed, then confirm.</p>
+          <div class="space-y-1 mb-4">${html || '<p class="text-sm text-gray-400 text-center py-4">No income categories yet.</p>'}</div>
+          <button id="confirm-income" class="btn w-full py-3 bg-emerald-500 text-white">Confirm Income</button>
+          <button id="cancel-income" class="btn w-full py-2 mt-2 bg-gray-100 text-gray-600">Cancel</button>
+        </div>`;
+      document.body.appendChild(overlay);
+
+      overlay.querySelector('#cancel-income').onclick = () => overlay.remove();
+      overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+      overlay.querySelector('#confirm-income').onclick = () => {
+        const inputs = overlay.querySelectorAll('.confirm-amt');
+        const todayStr = today();
+        const currentMonth = mk(todayStr);
+
+        // Remove previous income confirmation adjustments
+        data.txs = data.txs.filter(t => !(t.note && t.note.startsWith('Confirmed income') && mk(t.date) === currentMonth));
+
+        inputs.forEach(inp => {
+          const cat = inp.dataset.cat;
+          const confirmed = +inp.value || 0;
+
+          const current = data.txs
+            .filter(t => t.type === 'income' && t.cat === cat && mk(t.date) === currentMonth && !(t.note && t.note.startsWith('Confirmed income')))
+            .reduce((s, t) => s + +t.amount, 0);
+
+          const diff = confirmed - current;
+          if (diff > 0.01) {
+            data.txs.push({
+              id: Date.now() + Math.floor(Math.random() * 1000),
+              type: 'income',
+              amount: diff,
+              cat: cat,
+              date: todayStr,
+              note: 'Confirmed income'
+            });
+          }
+        });
+
+        save();
+        updateMonthFilter();
+        render();
+        overlay.remove();
+        showMotivational("Income confirmed! Keep it coming 💰");
+      };
+    };
+
+    // Reports
+    let trendChart = null;
+
+    function initReportDates() {
+      const now = new Date();
+      const first = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+      const last = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+      $('report-from').value = first;
+      $('report-to').value = last;
+    }
+
+    function runReport() {
+      const from = $('report-from').value;
+      const to = $('report-to').value;
+      if (!from || !to) return;
+
+      const filtered = data.txs
+        .filter(t => t.date >= from && t.date <= to)
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      let income = 0, exp = 0;
+      filtered.forEach(t => {
+        if (t.type === 'income') income += +t.amount;
+        else exp += +t.amount;
+      });
+      const net = income - exp;
+
+      $('rep-inc').textContent = money(income);
+      $('rep-exp').textContent = money(exp);
+      $('rep-net').textContent = money(net);
+      $('rep-net').className = 'font-bold ' + (net >= 0 ? 'text-emerald-500' : 'text-rose-500');
+      $('report-summary').classList.remove('hidden');
+
+      // Build daily points for chart
+      const days = {};
+      const start = new Date(from);
+      const end = new Date(to);
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const key = d.toISOString().slice(0, 10);
+        days[key] = { income: 0, exp: 0 };
+      }
+      filtered.forEach(t => {
+        if (!days[t.date]) days[t.date] = { income: 0, exp: 0 };
+        if (t.type === 'income') days[t.date].income += +t.amount;
+        else days[t.date].exp += +t.amount;
+      });
+
+      const labels = Object.keys(days).sort();
+      const incData = labels.map(k => days[k].income);
+      const expData = labels.map(k => days[k].exp);
+
+      // Running balance (from starting point of range)
+      let running = data.start || 0;
+      // approximate start balance before range
+      const before = data.txs.filter(t => t.date < from).reduce((s, t) => s + (t.type === 'income' ? +t.amount : -t.amount), 0);
+      running = (data.start || 0) + before;
+      const balData = labels.map(k => {
+        running += days[k].income - days[k].exp;
+        return Math.round(running);
+      });
+
+      if (trendChart) trendChart.destroy();
+      const ctx = $('trend-chart').getContext('2d');
+      trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels.map(d => d.slice(5)),
+          datasets: [
+            {
+              label: 'Balance',
+              data: balData,
+              borderColor: '#8b5cf6',
+              backgroundColor: 'rgba(139, 92, 246, 0.1)',
+              tension: 0.3,
+              fill: true,
+              pointRadius: 0,
+              borderWidth: 3
+            },
+            {
+              label: 'Income',
+              data: incData,
+              borderColor: '#10b981',
+              backgroundColor: 'transparent',
+              tension: 0.3,
+              pointRadius: 0,
+              borderWidth: 2
+            },
+            {
+              label: 'Expenses',
+              data: expData,
+              borderColor: '#f43f5e',
+              backgroundColor: 'transparent',
+              tension: 0.3,
+              pointRadius: 0,
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+          },
+          scales: {
+            y: { beginAtZero: false, grid: { color: '#f3e8ff' } },
+            x: { grid: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 10 } } }
+          }
+        }
+      });
+
+      // Transaction list
+      const listHtml = filtered.slice().reverse().map(t => `
+        <div class="flex justify-between items-center py-2 text-sm border-b border-gray-50">
+          <div>
+            <div class="font-medium">${t.cat}</div>
+            <div class="text-xs text-gray-400">${t.date}${t.note ? ' · ' + t.note : ''}</div>
+          </div>
+          <span class="${t.type === 'income' ? 'text-emerald-500' : 'text-rose-500'} font-semibold">
+            ${t.type === 'income' ? '+' : '−'}${money(t.amount)}
+          </span>
+        </div>`).join('');
+      $('report-tx-list').innerHTML = listHtml || '<p class="text-center text-sm text-gray-400 py-6">No transactions in this period</p>';
+    }
+
+    $('run-report').onclick = runReport;
+
+    load();
+  </script>
+</body>
+</html>                  
